@@ -1,0 +1,304 @@
+import { LineEdit, VerticalBox, HorizontalBox } from "std-widgets.slint";
+import { Styles } from "styles.slint";
+
+// struct TileData {
+//     image: image,
+//     image_visible: bool,
+//     solved: bool,
+// }
+
+component MyText inherits Rectangle {
+    in property <string> text: "Test";
+    in property <color> text_color: #000000;
+    in property <int> font-weight: 400;
+    in property <color> error_color;
+    in property <color> background_color;
+    width: Styles.width;
+    //min-height: Styles.height;
+    //max-height: innerRect.height;
+    height: innerRect.height;
+    clip: true;
+    background: root.error_color;
+    Rectangle {
+        background: root.background_color;
+        width: parent.width - 5px;
+        height: parent.height - 5px;
+
+        innerRect := Rectangle {
+        //background: root.background_color;
+        property <length> parent_width: parent.width;
+            height: myText.height;
+            width: myText.width;
+            property <length> position: (parent.width - self.width) / 2;
+            property <length> start_position: (parent.width - self.width) / 2;
+            x: position;
+            property <bool> running: self.width > parent.width;
+            animate x {
+                duration: 1000ms;
+                easing: ease-in-out;
+            }
+            Timer {
+                interval: 5000ms;
+                running: running;
+
+                triggered => {
+                    position = position == 0 ? (parent_width - innerRect.width) : 0;
+                //debug("myTetx.width: " + myTetx.width / 1px + " - parent_width: " + parent_width / 1px + " - width: " + innerRect.width / 1px);
+            }
+            }
+
+            myText := Text {
+                overflow: clip;
+            //width: Styles.width;
+            color: root.text_color;
+                text: root.text;
+                font-size: Styles.font-size;
+                font-family: Styles.font-family;
+                vertical-alignment: center;
+                font-weight: root.font-weight;
+            }
+        }
+    }
+}
+
+component Data inherits Rectangle {
+    in property <string> text: "70-12-31";
+    in property <color> text_color: #000000;
+
+    height: Styles.height;
+    width: Styles.width;
+    background: #ffffff;
+
+    MyText {
+        text: text;
+        text_color: text_color;
+    }
+}
+
+component PartialEffort inherits Rectangle {
+    in property <int> value: 0;
+    in property <brush> text_color: #000000;
+    in property <int> effort: 0;
+    in property <color> background_color;
+
+    height: Styles.height;
+    width: Styles.width;
+
+    MyText {
+        height: parent.height;
+        text: value == 0 ? "" : value;
+        text_color: #000000;
+        background_color: root.background_color;
+        error_color: rgba(255, 0, 0, value >= effort ? 1.0 : value / effort);
+        font-weight: 800;
+    }
+}
+
+component WorkerEffort inherits Rectangle {
+    //in property <string> value: "Worker12345|100\nWorker12|100\nWorker1|100\nWorker54321|100\nWorker5|100\nWorker|100\nWorker3|100\nWorker4|100\nWorker6|100\nWorker789|100\nWorker8|100\nWorker9|100";
+    in property <string> value: "Worker12345|80\nWorker12|80\nWorker1|80\nWorker54321|80\nWorker5|80\nWorker|80\nWorker3|80\nWorker4|80\nWorker6|80\nWorker789|80\nWorker8|80\nWorker9|80";
+    in property <color> text_color: #000000;
+    //in property <string> value;
+    //in property <string> value: "Worker12345|100";
+    //in property <string> value: "Worker12|100";
+    //in property <string> value: "Worker1|100";
+    //in property <string> value: "Worker54321|100";
+    //in property <string> value: "Worker5|100";
+    //in property <string> value: "Worker|100";
+    //in property <string> value: "Worker3|100";
+    //in property <string> value: "Worker4|100";
+    //in property <string> value: "Worker6|100";
+    //in property <string> value: "Worker789|100";
+    //in property <string> value: "Worker8|100";
+    //in property <string> value: "Worker9|100";
+    //in property <color> text_color: #000000;
+
+    //height: Styles.height;
+    width: Styles.width;
+    //background: #ffffff;
+
+    MyText {
+        width: parent.width;
+        //height: parent.height;
+        text: value;
+        text_color: text_color;
+    }
+}
+
+// component MemoryTile inherits Rectangle {
+//     callback clicked;
+//     in property <bool> open_curtain;
+//     in property <bool> solved;
+//     in property <image> icon;
+
+//     height: 64px;
+//     width: 64px;
+//     background: solved ? #34CE57 : #3960D5;
+//     animate background { duration: 800ms; }
+
+//     Image {
+//         source: icon;
+//         width: parent.width;
+//         height: parent.height;
+//     }
+
+//     // Left curtain
+//     Rectangle {
+//         background: #193076;
+//         x: 0px;
+//         width: open_curtain ? 0px : (parent.width / 2);
+//         height: parent.height;
+//         animate width {
+//             duration: 250ms;
+//             easing: ease-in;
+//         }
+//     }
+
+//     // Right curtain
+//     Rectangle {
+//         background: #193076;
+//         x: open_curtain ? parent.width : (parent.width / 2);
+//         width: open_curtain ? 0px : (parent.width / 2);
+//         height: parent.height;
+//         animate width {
+//             duration: 250ms;
+//             easing: ease-in;
+//         }
+//         animate x {
+//             duration: 250ms;
+//             easing: ease-in;
+//         }
+//     }
+
+//     TouchArea {
+//         clicked => {
+//             // Delegate to the user of this element
+//             root.clicked();
+//         }
+//     }
+// }
+
+component MyHorizontalBox inherits HorizontalBox {
+    spacing: 1px;
+    padding: 1px;
+}
+
+component MyVerticalBox inherits VerticalBox {
+    spacing: 1px;
+    padding: 1px;
+}
+
+component EffortByDate inherits MyVerticalBox {
+    in property <[string]> worker_efforts;
+    in property <[int]> partial_efforts;
+    in property <int> effort;
+    in property <color> background_color;
+    MyHorizontalBox {
+        for item in partial_efforts: PartialEffort {
+            value: item;
+            effort: root.effort;
+            background_color: root.background_color;
+        }
+    }
+
+    MyHorizontalBox {
+        for item in worker_efforts: WorkerEffort {
+            value: item;
+            background: #ffffff;
+        }
+    }
+}
+
+struct DevEffort {
+    partial_efforts: [int],
+    worker_efforts: [string],
+    effort: int,
+    background_color: color,
+}
+
+struct PjmDatas {
+    current_dates: [string],
+    current_week: string,
+    dev_efforts: [DevEffort]
+}
+
+export component MainWindow inherits Window {
+    title: "Project Management Effort Tracker App";
+    in property <PjmDatas> pjm_datas;
+    width: 1024px;
+    height: 768px;
+
+    callback check_if_pair_solved(); // Added
+    in property <bool> disable_tiles; // Added
+    background: #ffffff;
+    // in property <[TileData]> memory_tiles: [
+    //     { image: @image-url("icons/at.png") },
+    //     { image: @image-url("icons/balance-scale.png") },
+    //     { image: @image-url("icons/bicycle.png") },
+    //     { image: @image-url("icons/bus.png") },
+    //     { image: @image-url("icons/cloud.png") },
+    //     { image: @image-url("icons/cogs.png") },
+    //     { image: @image-url("icons/motorcycle.png") },
+    //     { image: @image-url("icons/video.png") },
+    // ];
+    // for tile[i] in memory_tiles: MemoryTile {
+    //     x: mod(i, 4) * 74px;
+    //     y: floor(i / 4) * 74px;
+    //     width: 64px;
+    //     height: 64px;
+    //     icon: tile.image;
+    //     open_curtain: tile.image_visible || tile.solved;
+    //         // propagate the solved status from the model to the tile
+    //         solved: tile.solved;
+    //     clicked => {
+    //             // old: tile.image_visible = !tile.image_visible;
+    //             // new:
+    //             if (!root.disable_tiles) {
+    //             tile.image_visible = true;
+    //             root.check_if_pair_solved();
+    //         }
+    //     }
+    // }
+
+    
+    //in property <[string]> current_dates: ["70-12-31", "71-01-01", "72-02-29", "73-03-15"];
+    // in property <[int]> partial_efforts: [80, 90, 100, 70];
+    // in property <[string]> worker_efforts;
+    // in property <int> effort: 100;
+    // in property <color> partial_efforts_color;
+    //in property <[string]>    current_dates: ["70-12-31"];
+
+    MyVerticalBox {
+        MyHorizontalBox {
+            for item in root.pjm_datas.current_dates: Data {
+                text: item;
+                background: item == root.pjm_datas.current_week ? #ffff00 : #ffffff;
+            }
+        }
+
+        MyHorizontalBox {
+            MyVerticalBox {
+                for dev_effort in root.pjm_datas.dev_efforts: EffortByDate {
+                    worker_efforts: dev_effort.worker_efforts;
+                    partial_efforts: dev_effort.partial_efforts;
+                    effort: dev_effort.effort;
+                    background_color: dev_effort.background_color;
+                }
+                // MyHorizontalBox {
+                //     for item in root.current_dates: PartialEffort { }
+                // }
+
+                // MyHorizontalBox {
+                //     for item in root.current_dates: WorkerEffort {
+                //         //background: #e0e0e0;
+                //         //text_color: #000000;
+                //     }
+                // }
+
+                // MyHorizontalBox {
+                //     for item in root.current_dates: WorkerEffort { }
+                // }
+            }
+        }
+    }
+}
