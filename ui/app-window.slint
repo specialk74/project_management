@@ -8,9 +8,10 @@ component MyText inherits Rectangle {
     in property <color> error_color;
     in property <color> background_color;
     width: Styles.width;
-    height: innerRect.height;
+    min-height: myText.height;
     clip: true;
     background: root.error_color;
+    //height: innerRect.height;
     Rectangle {
         background: root.background_color;
         width: parent.width - 5px;
@@ -18,7 +19,7 @@ component MyText inherits Rectangle {
 
         innerRect := Rectangle {
             property <length> parent_width: parent.width;
-            height: myText.height;
+            //height: myText.height;
             width: myText.width;
             property <length> position: (parent.width - self.width) / 2;
             property <length> start_position: (parent.width - self.width) / 2;
@@ -175,6 +176,7 @@ export component MainWindow inherits Window {
         }
 
         MyHorizontalBox {
+            max-height: Styles.height;
             MyVerticalBox {
                 for dev_effort in root.pjm_datas.dev_efforts: EffortByDate {
                     worker_efforts: dev_effort.worker_efforts;
