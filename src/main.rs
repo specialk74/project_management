@@ -93,6 +93,7 @@ fn main() {
     ];
 
     let pjm_datas = PjmDatas {
+        project_name: "Project Name Lungo".into(),
         current_dates: model.clone().into(),
         current_week: SharedString::from(
             primo_giorno_settimana_corrente(&Local::now())
