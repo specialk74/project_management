@@ -1,6 +1,17 @@
-import { LineEdit, VerticalBox, HorizontalBox, StyleMetrics, GridBox } from "std-widgets.slint";
+import {
+    LineEdit,
+    VerticalBox,
+    HorizontalBox,
+    StyleMetrics,
+    GridBox,
+} from "std-widgets.slint";
 import { Styles } from "styles.slint";
-import { GroupBox , CheckBox } from "std-widgets.slint";
+import { GroupBox, CheckBox } from "std-widgets.slint";
+
+export global AppState {
+    in-out property <int> counter: 42;
+    callback partial_effort(string);
+}
 
 component InternalText inherits Text {
     overflow: clip;
@@ -15,8 +26,8 @@ component MyText inherits Rectangle {
     in property <string> text: "Test";
     in property <color> text_color: #000000;
     in property <int> font-weight: 400;
-    in property <color> error_color;
-    in property <color> background_color;
+    in property <color> error_color: #ffffff;
+    in property <color> background_color: #ffffff;
     in property <TextHorizontalAlignment> horizontal-alignment: TextHorizontalAlignment.center;
 
     width: Styles.width;
@@ -71,6 +82,9 @@ component Data inherits Rectangle {
     MyText {
         text: text;
         text_color: text_color;
+        background: root.background;
+        background_color: root.background;
+        error_color: root.background;
     }
 }
 
@@ -131,11 +145,41 @@ component MyVerticalBox inherits VerticalBox {
     padding: 1px;
 }
 
+component SingleEffort inherits MyVerticalBox {
+    in property <string> worker_efforts;
+    in property <int> effort;
+    in property <color> background_color;
+
+    property <int> partial_effort_value;
+
+    init => {
+        AppState.partial_effort(worker_efforts);
+    }
+
+    PartialEffort {
+        value: partial_effort_value;
+        effort: root.effort;
+        background_color: root.background_color;
+    }
+
+    WorkerEffort {
+        value: worker_efforts;
+        background: #ffffff;
+    }
+}
+
 component EffortByDate inherits MyVerticalBox {
     in property <[string]> worker_efforts;
     in property <[int]> partial_efforts;
     in property <int> effort;
     in property <color> background_color;
+
+    // SingleEffort {
+    //     worker_efforts: "";
+    //     effort: root.effort;
+    //     background_color: root.background_color;
+    // }
+
     MyHorizontalBox {
         for item in partial_efforts: PartialEffort {
             value: item;
@@ -155,6 +199,7 @@ component EffortByDate inherits MyVerticalBox {
 struct DevEffort {
     partial_efforts: [int],
     worker_efforts: [string],
+    max_height: int,
     effort: int,
     background_color: color,
 }
@@ -182,18 +227,22 @@ component SingleHeader {
 
 component Header inherits Rectangle {
     MyHorizontalBox {
-        SingleHeader{
+        SingleHeader {
             text: "Project";
         }
+
         SingleHeader {
             text: "Platform";
         }
+
         SingleHeader {
             text: "PM";
         }
+
         SingleHeader {
             text: "Dev";
         }
+
         SingleHeader {
             text: "Budget";
         }
@@ -203,15 +252,18 @@ component Header inherits Rectangle {
 component Worker inherits Rectangle {
     in property <PjmDatas> pjm_datas;
     MyHorizontalBox {
-        SingleHeader{
-            text: "";
-        }
         SingleHeader {
             text: "";
         }
+
         SingleHeader {
             text: "";
         }
+
+        SingleHeader {
+            text: "";
+        }
+
         InternalText {
             width: Styles.width * 2;
             horizontal-alignment: TextHorizontalAlignment.right;
@@ -230,17 +282,47 @@ component Dates inherits Rectangle {
     }
 }
 
-component SingleProject inherits Rectangle{
+component SingleProject inherits Rectangle {
     border-width: 1px;
     border-color: black;
     border-radius: 1px;
 
     in property <PjmDatas> pjm_datas;
     MyHorizontalBox {
-        project:= Header {}
-        efforts:= Rectangle {
+        MyVerticalBox {
+            for dev_effort in root.pjm_datas.dev_efforts: EffortByDate {
+                MyHorizontalBox {
+                    MyText {
+                        text: "Project";
+                        min-height: dev_effort.max_height * Styles.height;
+                    }
+
+                    MyText {
+                        text: "Platform";
+                        min-height: dev_effort.max_height * Styles.height;
+                    }
+
+                    MyText {
+                        text: "PM";
+                        min-height: dev_effort.max_height * Styles.height;
+                    }
+
+                    MyText {
+                        text: dev_effort.effort;
+                        min-height: dev_effort.max_height * Styles.height;
+                    }
+
+                    MyText {
+                        text: "Budget";
+                        min-height: dev_effort.max_height * Styles.height;
+                    }
+                }
+            }
+        }
+
+        Rectangle {
             MyVerticalBox {
-                for dev_effort in root.pjm_datas.dev_efforts: EffortByDate {
+                for dev_effort in root.pjm_datas.dev_efforts: effort_by_date := EffortByDate {
                     worker_efforts: dev_effort.worker_efforts;
                     partial_efforts: dev_effort.partial_efforts;
                     effort: dev_effort.effort;
@@ -261,6 +343,7 @@ component Summary inherits Rectangle {
         Worker {
             pjm_datas: root.pjm_datas;
         }
+
         percents := Dates {
             pjm_datas: root.pjm_datas;
         }
@@ -270,7 +353,8 @@ component Summary inherits Rectangle {
 component FirstLine inherits Rectangle {
     in property <PjmDatas> pjm_datas;
     MyHorizontalBox {
-        Header {}
+        Header { }
+
         Dates {
             pjm_datas: root.pjm_datas;
         }
@@ -282,19 +366,22 @@ export component MainWindow inherits Window {
     default-font-size: Styles.font-size;
     default-font-family: Styles.font-family;
     title: "Project Management Effort Tracker App";
-    width: 1024px;
-    height: 768px;
+    min-width: 1024px;
+    //height: 768px;
     resize-border-width: 10px;
 
     in property <PjmDatas> pjm_datas;
 
     MyVerticalBox {
+
         FirstLine {
             pjm_datas: root.pjm_datas;
         }
+
         SingleProject {
             pjm_datas: root.pjm_datas;
         }
+
         Summary {
             pjm_datas: root.pjm_datas;
         }
